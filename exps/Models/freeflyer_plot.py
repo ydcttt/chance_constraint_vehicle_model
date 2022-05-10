@@ -71,6 +71,7 @@ def plot(X_in, U_in, V_in, model):
     global figures_N
     figures_N = X_in.shape[0]
     figures_i = figures_N - 1
+    print("figures_i: {}".format(figures_i))
 
     global X, U, V, obstacles, poly_obs
     X = X_in

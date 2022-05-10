@@ -29,12 +29,12 @@ class Model:
     robot_radius     = 0.05 #0.05
 
     # problem 
-    x_init  = np.array([5., 0, 0, 0])
+    x_init  = np.array([5., 0, 0, -np.pi/6])
     x_final = np.array([50., 0, 0, 0])
 
     # Uncertainty / chance constraints
     # Sig_w = 0.2*np.diag([1e-7,1e-7,1e-7,1e-7])
-    Sig_w = 0.001*np.diag([1, 1, 0.5, 0.0])
+    Sig_w = 0.0*np.diag([1, 1, 0.5, 0.0])
     prob  = 0.9         # probability threshold for chance constraints
     n_p   = 2           # number of positional dimensions for obs. avoid.
     p_quant_chi_sqrt = np.sqrt(p_th_quantile_chi_squared(0.9, n_p))
@@ -44,7 +44,8 @@ class Model:
 
     # OCP quadratic cost matrices
     quadratic_cost_matrix_controls = 10 * np.eye(n_u)
-    quadratic_cost_matrix_state    = np.zeros((n_x,n_x))
+    # quadratic_cost_matrix_state    = np.zeros((n_x,n_x))
+    quadratic_cost_matrix_state    = 10 * np.eye((n_x))
 
     # CC-SCP Parameters
     scp_params  = {
@@ -104,7 +105,7 @@ class Model:
 
         self.poly_obstacles = []
         # center: x,y,z, with: length width height
-        center, width = np.array([10, 2.5, 0.]), np.array([4., 2., 1e-4])
+        center, width = np.array([10, 25, 0.]), np.array([4., 2., 1e-4])
         self.poly_obstacles.append(PolyObs(center,width))
 
     # def run_model_simulation(self, state, control):
@@ -132,18 +133,26 @@ class Model:
         f = sp.zeros(4,1)
         x = sp.Matrix(sp.symbols('x y vel theta', real=True))
         u = sp.Matrix(sp.symbols('acc yaw_rate', real=True))
-        Ts = self.Ts
 
-        f[0] = x[0] + sp.cos(x[3]) * (x[2]*Ts + 0.5*u[0]*Ts**2)
-        f[1] = x[1] + sp.sin(x[3]) * (x[2]*Ts + 0.5*u[0]*Ts**2)
-        f[2] = x[2] + u[0]*Ts
-        f[3] = x[3] + u[1]*Ts
+        # Ts = self.Ts
+        # f[0] = x[0] + sp.cos(x[3]) * (x[2]*Ts + 0.5*u[0]*Ts**2)
+        # f[1] = x[1] + sp.sin(x[3]) * (x[2]*Ts + 0.5*u[0]*Ts**2)
+        # f[2] = x[2] + u[0]*Ts
+        # f[3] = x[3] + u[1]*Ts
+        f[0] = x[2] * sp.cos(x[3])
+        f[1] = x[2] * sp.sin(x[3])
+        f[2] = u[0]
+        f[3] = u[1]
+
+        # pass to discrete time
+        f = x + self.Ts * f
 
         f = sp.simplify(f)
-        # print("f {}".format(f))
+        print("f: {}".format(f))
         A = sp.simplify(f.jacobian(x))
-        # print("A {}".format(A))
+        print("A: {}".format(A))
         B = sp.simplify(f.jacobian(u))
+        print("B: {}".format(B))
 
         A_col = A.reshape(n_x*n_x, 1)
         # print("A_col {}".format(A_col))

@@ -21,9 +21,11 @@ problem.solve_ccscp(m)
 # (Optional) Verify with Monte-Carlo
 X_sol, U_sol = problem.get_XU_solution_CCSCP(m)
 Xs_true, Us_true, nb_in_obs = monte_carlo(X_sol, U_sol, m, N_MC=1)
+print("nb_in_obs {}".format(nb_in_obs))
 
 # Plot results
 plot(problem.all_X, problem.all_U, problem.all_V, m, Xs_true, Us_true)
+print("Vars_all {}".format(problem.all_V))
 
 # View solutions at each SCP iteration
 # astrobee_plot.plot(problem.all_X, problem.all_U, problem.all_V, m)

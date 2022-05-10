@@ -19,7 +19,7 @@ N = m.N
 problem = CCOCP(m)
 
 ## Solve problem using GuSTO which calls osqp
-problem.solve_ccscp(m)
+# problem.solve_ccscp(m)
 
 start = time.time()
 problem.solve_ccscp(m)

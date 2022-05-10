@@ -239,6 +239,7 @@ class Model:
             # derivatives w.r.t. previous states and controls
             Sig_dxup_next = np.tensordot(A_k, 
                                 np.tensordot(A_k,Sig_dxu_k, (1,0)), (1,1))
+            # derivatives w.r.t. current state and control
             Sig_dxuk_next = 2.*(A_k@Sig_k@np.swapaxes(A_dxu_k,1,0))
 
             Vars[:,:, k+1] = Sig_next

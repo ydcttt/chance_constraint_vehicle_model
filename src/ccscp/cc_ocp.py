@@ -68,7 +68,10 @@ class CCOCP:
 
         # objective and constraints
         self.P, self.q         = self.get_objective_coeffs(m)
+        # print("P {}".format(self.P))
+        # print("q {}".format(self.q))
         self.A, self.l, self.u = self.get_all_constraints_coeffs(m)
+
 
         # Setup OSQP problem
         self.verbose_osqp = verbose_osqp
@@ -90,6 +93,12 @@ class CCOCP:
         QN = np.zeros((m.n_x,m.n_x))
         Qt = np.zeros((n_t,n_t))      # trust region slack vars
         R  = m.quadratic_cost_matrix_controls
+
+        # print("Q {}".format(Q))
+        # print("R {}".format(R))
+        # print("QN {}".format(QN))
+        # print("Qt {}".format(Qt))
+
         P  = sparse.block_diag([sparse.kron(eye(N-1), Q), QN,
                                 sparse.kron(eye(N-1), R), Qt], format='csc')
         # Linear Objective
@@ -368,6 +377,7 @@ class CCOCP:
 
         self.res = self.prob.solve()
         if self.res.info.status != 'solved':
+            print(self.res.info.status)
             warn("[solve_OSQP]: Problem unfeasible.")
             B_problem_solved = False
 
